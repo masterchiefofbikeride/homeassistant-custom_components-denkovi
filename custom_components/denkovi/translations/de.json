@@ -1,0 +1,133 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Mit Denkovi-Modul verbinden",
+        "description": "Gib die Verbindungsdaten deines Denkovi Relais-Moduls ein.",
+        "data": {
+          "resource": "URL (z.B. http://10.0.30.15)",
+          "password": "Passwort"
+        }
+      },
+      "relays": {
+        "title": "Relais konfigurieren",
+        "description": "Wähle welche Relais als Schalter hinzugefügt werden sollen und vergib Namen.",
+        "data": {
+          "relay_1_enabled": "Relais 1 aktiv",
+          "relay_1_name": "Relais 1 Name",
+          "relay_1_invert": "Relais 1 invertieren",
+          "relay_2_enabled": "Relais 2 aktiv",
+          "relay_2_name": "Relais 2 Name",
+          "relay_2_invert": "Relais 2 invertieren",
+          "relay_3_enabled": "Relais 3 aktiv",
+          "relay_3_name": "Relais 3 Name",
+          "relay_3_invert": "Relais 3 invertieren",
+          "relay_4_enabled": "Relais 4 aktiv",
+          "relay_4_name": "Relais 4 Name",
+          "relay_4_invert": "Relais 4 invertieren",
+          "relay_5_enabled": "Relais 5 aktiv",
+          "relay_5_name": "Relais 5 Name",
+          "relay_5_invert": "Relais 5 invertieren",
+          "relay_6_enabled": "Relais 6 aktiv",
+          "relay_6_name": "Relais 6 Name",
+          "relay_6_invert": "Relais 6 invertieren",
+          "relay_7_enabled": "Relais 7 aktiv",
+          "relay_7_name": "Relais 7 Name",
+          "relay_7_invert": "Relais 7 invertieren",
+          "relay_8_enabled": "Relais 8 aktiv",
+          "relay_8_name": "Relais 8 Name",
+          "relay_8_invert": "Relais 8 invertieren",
+          "relay_9_enabled": "Relais 9 aktiv",
+          "relay_9_name": "Relais 9 Name",
+          "relay_9_invert": "Relais 9 invertieren",
+          "relay_10_enabled": "Relais 10 aktiv",
+          "relay_10_name": "Relais 10 Name",
+          "relay_10_invert": "Relais 10 invertieren",
+          "relay_11_enabled": "Relais 11 aktiv",
+          "relay_11_name": "Relais 11 Name",
+          "relay_11_invert": "Relais 11 invertieren",
+          "relay_12_enabled": "Relais 12 aktiv",
+          "relay_12_name": "Relais 12 Name",
+          "relay_12_invert": "Relais 12 invertieren",
+          "relay_13_enabled": "Relais 13 aktiv",
+          "relay_13_name": "Relais 13 Name",
+          "relay_13_invert": "Relais 13 invertieren",
+          "relay_14_enabled": "Relais 14 aktiv",
+          "relay_14_name": "Relais 14 Name",
+          "relay_14_invert": "Relais 14 invertieren",
+          "relay_15_enabled": "Relais 15 aktiv",
+          "relay_15_name": "Relais 15 Name",
+          "relay_15_invert": "Relais 15 invertieren",
+          "relay_16_enabled": "Relais 16 aktiv",
+          "relay_16_name": "Relais 16 Name",
+          "relay_16_invert": "Relais 16 invertieren"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Verbindung zum Gerät fehlgeschlagen. Überprüfe URL und Passwort.",
+      "no_relays_selected": "Bitte wähle mindestens ein Relais aus."
+    },
+    "abort": {
+      "already_configured": "Dieses Gerät ist bereits konfiguriert."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Relais konfigurieren",
+        "description": "Wähle welche Relais verwendet werden sollen und vergib Namen.",
+        "data": {
+          "relay_1_enabled": "Relais 1 aktiv",
+          "relay_1_name": "Relais 1 Name",
+          "relay_1_invert": "Relais 1 invertieren",
+          "relay_2_enabled": "Relais 2 aktiv",
+          "relay_2_name": "Relais 2 Name",
+          "relay_2_invert": "Relais 2 invertieren",
+          "relay_3_enabled": "Relais 3 aktiv",
+          "relay_3_name": "Relais 3 Name",
+          "relay_3_invert": "Relais 3 invertieren",
+          "relay_4_enabled": "Relais 4 aktiv",
+          "relay_4_name": "Relais 4 Name",
+          "relay_4_invert": "Relais 4 invertieren",
+          "relay_5_enabled": "Relais 5 aktiv",
+          "relay_5_name": "Relais 5 Name",
+          "relay_5_invert": "Relais 5 invertieren",
+          "relay_6_enabled": "Relais 6 aktiv",
+          "relay_6_name": "Relais 6 Name",
+          "relay_6_invert": "Relais 6 invertieren",
+          "relay_7_enabled": "Relais 7 aktiv",
+          "relay_7_name": "Relais 7 Name",
+          "relay_7_invert": "Relais 7 invertieren",
+          "relay_8_enabled": "Relais 8 aktiv",
+          "relay_8_name": "Relais 8 Name",
+          "relay_8_invert": "Relais 8 invertieren",
+          "relay_9_enabled": "Relais 9 aktiv",
+          "relay_9_name": "Relais 9 Name",
+          "relay_9_invert": "Relais 9 invertieren",
+          "relay_10_enabled": "Relais 10 aktiv",
+          "relay_10_name": "Relais 10 Name",
+          "relay_10_invert": "Relais 10 invertieren",
+          "relay_11_enabled": "Relais 11 aktiv",
+          "relay_11_name": "Relais 11 Name",
+          "relay_11_invert": "Relais 11 invertieren",
+          "relay_12_enabled": "Relais 12 aktiv",
+          "relay_12_name": "Relais 12 Name",
+          "relay_12_invert": "Relais 12 invertieren",
+          "relay_13_enabled": "Relais 13 aktiv",
+          "relay_13_name": "Relais 13 Name",
+          "relay_13_invert": "Relais 13 invertieren",
+          "relay_14_enabled": "Relais 14 aktiv",
+          "relay_14_name": "Relais 14 Name",
+          "relay_14_invert": "Relais 14 invertieren",
+          "relay_15_enabled": "Relais 15 aktiv",
+          "relay_15_name": "Relais 15 Name",
+          "relay_15_invert": "Relais 15 invertieren",
+          "relay_16_enabled": "Relais 16 aktiv",
+          "relay_16_name": "Relais 16 Name",
+          "relay_16_invert": "Relais 16 invertieren"
+        }
+      }
+    }
+  }
+}

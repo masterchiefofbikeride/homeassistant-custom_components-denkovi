@@ -1,179 +1,185 @@
-"""
-Support for an exposed Denkovi HTTP API of a device.
-For more details about this platform, please refer to the documentation at
-https://home-assistant.io/components/switch.arest/
-"""
+"""Switch platform for the Denkovi integration."""
+
+from __future__ import annotations
 
 import logging
 from datetime import timedelta
 
-import requests
-import voluptuous as vol
+import aiohttp
 
-from homeassistant.components.switch import (SwitchEntity, PLATFORM_SCHEMA)
-from homeassistant.const import (CONF_NAME, CONF_RESOURCE, CONF_PASSWORD)
+from homeassistant.components.switch import SwitchEntity
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import Throttle
-import homeassistant.helpers.config_validation as cv
+
+from .const import (
+    CONF_INVERT,
+    CONF_PASSWORD,
+    CONF_RELAY_NAME,
+    CONF_RELAYS,
+    CONF_RESOURCE,
+    DOMAIN,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
-CONF_RELAYS = 'relays'
-CONF_INVERT = 'invert'
-
-DEFAULT_NAME = 'Denkovi switch'
-
-PIN_FUNCTION_SCHEMA = vol.Schema({
-    vol.Optional(CONF_NAME): cv.string,
-    vol.Optional(CONF_INVERT, default=False): cv.boolean,
-})
-
-PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
-    vol.Required(CONF_RESOURCE): cv.url,
-    vol.Required(CONF_PASSWORD): cv.string,
-    vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
-    vol.Optional(CONF_RELAYS, default={}):
-        vol.Schema({cv.string: PIN_FUNCTION_SCHEMA})
-})
+MIN_TIME_BETWEEN_UPDATES = timedelta(seconds=30)
 
 
-def setup_platform(hass, config, add_entities, discovery_info=None):
-    """Set up the Denkovi switches."""
-    resource = config.get(CONF_RESOURCE)
-    password = config.get(CONF_PASSWORD)
-    name = config.get(CONF_NAME)
+async def async_setup_entry(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+) -> None:
+    """Set up Denkovi switches from a config entry."""
+    resource = entry.data[CONF_RESOURCE]
+    password = entry.data[CONF_PASSWORD]
+    relays_config = entry.options.get(CONF_RELAYS, {})
 
-    try:
-        denkoviModule = DenkoviModule(resource, password, name)
-    except DenkoviException as e:
-        _LOGGER.error(str(e))
-        return False
+    module = DenkoviModule(resource, password)
+    await module.async_update()
 
-    dev = []
-    relays = config.get(CONF_RELAYS)
-    for relaynum, relay in relays.items():
-        dev.append(DenkoviSwitchRelay(denkoviModule, relay.get(CONF_NAME), relaynum, relay.get(CONF_INVERT)))
+    entities: list[DenkoviSwitch] = []
+    for relay_num, relay_cfg in relays_config.items():
+        name = relay_cfg.get(CONF_RELAY_NAME, f"Relay {relay_num}")
+        invert = relay_cfg.get(CONF_INVERT, False)
+        entities.append(
+            DenkoviSwitch(module, entry.entry_id, name, relay_num, invert)
+        )
 
-    add_entities(dev)
+    async_add_entities(entities, update_before_add=True)
 
-class DenkoviModule():
 
-    def __init__(self, resource, password, name):
+class DenkoviModule:
+    """Manages communication with a Denkovi relay board."""
+
+    def __init__(self, resource: str, password: str) -> None:
+        """Initialize."""
         self._resource = resource
         self._password = password
-        self._name = name
-        self.update()
+        self._state_data: dict | None = None
 
     @property
-    def name(self):
-        return self._name
+    def resource(self) -> str:
+        """Return the base URL."""
+        return self._resource
 
-    def turn_on_or_off(self, relay, payload):
+    async def async_turn_on_or_off(self, relay: str, payload: int) -> dict | None:
+        """Send command and return updated state."""
+        url = (
+            f"{self._resource}/current_state.json"
+            f"?pw={self._password}&Relay{relay}={payload}"
+        )
         try:
-            self._response = requests.get('{}/current_state.json?pw={}&Relay{}={}'.format(self._resource, self._password, relay, payload),
-                                timeout=20)
-        except requests.exceptions.ConnectionError:
-            raise DenkoviConnectException('turn_on_or_off - No route to device {}'.format(self._resource))
+            async with aiohttp.ClientSession() as session:
+                async with session.get(
+                    url, timeout=aiohttp.ClientTimeout(total=20)
+                ) as resp:
+                    if resp.status == 200:
+                        self._state_data = await resp.json(content_type=None)
+                        return self._state_data
+        except Exception:
+            _LOGGER.error("Failed to send command to %s", self._resource)
+        return None
 
-    def get_state(self, relay):
-        if self._response.status_code == 200:
-            try:
-                return int(self._response.json()['CurrentState']['Output'][int(relay) - 1]['Value'])
-            except:
-                raise DenkoviException('Unexpected JSONL {}'.format(self._response.content))
-        else:
-            raise DenkoviException('Unexpected HTTP Response code: {}'.format(self._response.status_code))
-
-    @Throttle(timedelta(minutes=5))
-    def update(self):
-        _LOGGER.info("Updating DenkoviModule %s", self._resource)
-        """Get the latest data from Denkovi API and update the state."""
+    def get_relay_value(self, relay: str) -> int | None:
+        """Return the current value (0 or 1) for a relay from cached state."""
+        if self._state_data is None:
+            return None
         try:
-            self._response = requests.get('{}/current_state.json?pw={}'.format(self._resource, self._password), timeout=30)
-            if self._response.status_code != 200:
-                raise DenkoviException('Unexpected HTTP Response code: {}'.format(self._response.status_code))
-        except requests.exceptions.MissingSchema:
-            raise DenkoviException("Missing resource or schema in configuration. Add http:// to your URL")
-        except requests.exceptions.ConnectionError:
-            raise DenkoviConnectException('update - No route to device {}'.format(self._resource))
+            return int(
+                self._state_data["CurrentState"]["Output"][int(relay) - 1]["Value"]
+            )
+        except (KeyError, IndexError, TypeError, ValueError):
+            _LOGGER.error("Unexpected state data structure")
+            return None
+
+    @Throttle(MIN_TIME_BETWEEN_UPDATES)
+    async def async_update(self) -> None:
+        """Fetch current state from the device."""
+        url = f"{self._resource}/current_state.json?pw={self._password}"
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(
+                    url, timeout=aiohttp.ClientTimeout(total=30)
+                ) as resp:
+                    if resp.status == 200:
+                        self._state_data = await resp.json(content_type=None)
+                    else:
+                        _LOGGER.error(
+                            "Unexpected HTTP %s from %s", resp.status, self._resource
+                        )
+        except Exception:
+            _LOGGER.error("Connection error updating %s", self._resource)
 
 
-class DenkoviSwitchBase(SwitchEntity):
-    """Representation of an Denkovi switch."""
+class DenkoviSwitch(SwitchEntity):
+    """A switch entity representing a single Denkovi relay."""
 
-    def __init__(self, denkoviModule, name, relay):
-        """Initialize the switch."""
-        self._denkoviModule = denkoviModule
+    _attr_has_entity_name = True
+
+    def __init__(
+        self,
+        module: DenkoviModule,
+        entry_id: str,
+        name: str,
+        relay: str,
+        invert: bool,
+    ) -> None:
+        """Initialize."""
+        self._module = module
         self._relay = relay
-        self._name = name
-        self._state = None
-        self._available = True
-
-    @property
-    def unique_id(self):
-        """Return the unique ID."""
-        return f"{self._denkoviModule.name}_{self._relay}"
-
-    @property
-    def name(self):
-        """Return the name of the switch."""
-        return self._name
-
-    @property
-    def is_on(self):
-        """Return true if device is on."""
-        return self._state
-
-    @property
-    def available(self):
-        """Could the device be accessed during the last update call."""
-        return self._available
-
-
-class DenkoviSwitchRelay(DenkoviSwitchBase):
-    """Representation of an Denkovi switch. Based on digital I/O."""
-
-    def __init__(self, denkoviModule, name, relay, invert):
-        """Initialize the switch."""
-        super().__init__(denkoviModule, name, relay)
         self._invert = invert
-        self.update()
+        self._attr_name = name
+        self._attr_unique_id = f"{DOMAIN}_{entry_id}_relay_{relay}"
+        self._attr_available = True
 
-    def turn_on(self, **kwargs):
-        """Turn the device on."""
-        turn_on_payload = int(not self._invert)
-        self.turn_on_or_off(turn_on_payload)
-        _LOGGER.info("Turning on %s", self._name)
+    @property
+    def device_info(self):
+        """Return device info to group entities under one device."""
+        return {
+            "identifiers": {(DOMAIN, self._module.resource)},
+            "name": f"Denkovi ({self._module.resource})",
+            "manufacturer": "Denkovi",
+        }
 
-    def turn_off(self, **kwargs):
-        """Turn the device off."""
-        turn_off_payload = int(self._invert)
-        self.turn_on_or_off(turn_off_payload)
-        _LOGGER.info("Turning off %s", self._name)
-
-    def turn_on_or_off(self, payload):
-        """Turn the device on or off."""
-        try:
-            self._denkoviModule.turn_on_or_off(self._relay, payload)
+    async def async_turn_on(self, **kwargs) -> None:
+        """Turn the relay on."""
+        payload = int(not self._invert)
+        result = await self._module.async_turn_on_or_off(self._relay, payload)
+        if result is not None:
             status_value = int(self._invert)
-            self._state = self._denkoviModule.get_state(self._relay) != status_value
-            self._available = True
-        except DenkoviException as e:
-            _LOGGER.error("Error turning on or off: %s", str(e))
-            self._available = False
+            val = self._module.get_relay_value(self._relay)
+            self._attr_is_on = val is not None and val != status_value
+            self._attr_available = True
+        else:
+            self._attr_available = False
 
-    def update(self):
-        """Get the latest data from Denkovi API and update the state."""
-        try:
-            self._denkoviModule.update()
+    async def async_turn_off(self, **kwargs) -> None:
+        """Turn the relay off."""
+        payload = int(self._invert)
+        result = await self._module.async_turn_on_or_off(self._relay, payload)
+        if result is not None:
             status_value = int(self._invert)
-            self._state = self._denkoviModule.get_state(self._relay) != status_value
-            self._available = True
-        except DenkoviException as e:
-            _LOGGER.error("Error updating state for relay %s, %s", str(self._relay), str(e))
-            self._available = False
+            val = self._module.get_relay_value(self._relay)
+            self._attr_is_on = val is not None and val != status_value
+            self._attr_available = True
+        else:
+            self._attr_available = False
 
-class DenkoviException(Exception):
-    pass
+    async def async_update(self) -> None:
+        """Fetch state from the device."""
+        try:
+            await self._module.async_update()
+            status_value = int(self._invert)
+            val = self._module.get_relay_value(self._relay)
+            if val is not None:
+                self._attr_is_on = val != status_value
+                self._attr_available = True
+            else:
+                self._attr_available = False
+        except Exception:
+            _LOGGER.error("Error updating relay %s", self._relay)
+            self._attr_available = False
 
-class DenkoviConnectException(DenkoviException):
-    pass

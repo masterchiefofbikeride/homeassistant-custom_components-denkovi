@@ -1,0 +1,133 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to Denkovi Module",
+        "description": "Enter the connection details for your Denkovi relay module.",
+        "data": {
+          "resource": "URL (e.g. http://10.0.30.15)",
+          "password": "Password"
+        }
+      },
+      "relays": {
+        "title": "Configure Relays",
+        "description": "Select which relays to add as switches and give them names.",
+        "data": {
+          "relay_1_enabled": "Relay 1 enabled",
+          "relay_1_name": "Relay 1 name",
+          "relay_1_invert": "Relay 1 invert",
+          "relay_2_enabled": "Relay 2 enabled",
+          "relay_2_name": "Relay 2 name",
+          "relay_2_invert": "Relay 2 invert",
+          "relay_3_enabled": "Relay 3 enabled",
+          "relay_3_name": "Relay 3 name",
+          "relay_3_invert": "Relay 3 invert",
+          "relay_4_enabled": "Relay 4 enabled",
+          "relay_4_name": "Relay 4 name",
+          "relay_4_invert": "Relay 4 invert",
+          "relay_5_enabled": "Relay 5 enabled",
+          "relay_5_name": "Relay 5 name",
+          "relay_5_invert": "Relay 5 invert",
+          "relay_6_enabled": "Relay 6 enabled",
+          "relay_6_name": "Relay 6 name",
+          "relay_6_invert": "Relay 6 invert",
+          "relay_7_enabled": "Relay 7 enabled",
+          "relay_7_name": "Relay 7 name",
+          "relay_7_invert": "Relay 7 invert",
+          "relay_8_enabled": "Relay 8 enabled",
+          "relay_8_name": "Relay 8 name",
+          "relay_8_invert": "Relay 8 invert",
+          "relay_9_enabled": "Relay 9 enabled",
+          "relay_9_name": "Relay 9 name",
+          "relay_9_invert": "Relay 9 invert",
+          "relay_10_enabled": "Relay 10 enabled",
+          "relay_10_name": "Relay 10 name",
+          "relay_10_invert": "Relay 10 invert",
+          "relay_11_enabled": "Relay 11 enabled",
+          "relay_11_name": "Relay 11 name",
+          "relay_11_invert": "Relay 11 invert",
+          "relay_12_enabled": "Relay 12 enabled",
+          "relay_12_name": "Relay 12 name",
+          "relay_12_invert": "Relay 12 invert",
+          "relay_13_enabled": "Relay 13 enabled",
+          "relay_13_name": "Relay 13 name",
+          "relay_13_invert": "Relay 13 invert",
+          "relay_14_enabled": "Relay 14 enabled",
+          "relay_14_name": "Relay 14 name",
+          "relay_14_invert": "Relay 14 invert",
+          "relay_15_enabled": "Relay 15 enabled",
+          "relay_15_name": "Relay 15 name",
+          "relay_15_invert": "Relay 15 invert",
+          "relay_16_enabled": "Relay 16 enabled",
+          "relay_16_name": "Relay 16 name",
+          "relay_16_invert": "Relay 16 invert"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot connect to device. Check URL and password.",
+      "no_relays_selected": "Please select at least one relay."
+    },
+    "abort": {
+      "already_configured": "This device is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Configure Relays",
+        "description": "Select which relays to use and set their names.",
+        "data": {
+          "relay_1_enabled": "Relay 1 enabled",
+          "relay_1_name": "Relay 1 name",
+          "relay_1_invert": "Relay 1 invert",
+          "relay_2_enabled": "Relay 2 enabled",
+          "relay_2_name": "Relay 2 name",
+          "relay_2_invert": "Relay 2 invert",
+          "relay_3_enabled": "Relay 3 enabled",
+          "relay_3_name": "Relay 3 name",
+          "relay_3_invert": "Relay 3 invert",
+          "relay_4_enabled": "Relay 4 enabled",
+          "relay_4_name": "Relay 4 name",
+          "relay_4_invert": "Relay 4 invert",
+          "relay_5_enabled": "Relay 5 enabled",
+          "relay_5_name": "Relay 5 name",
+          "relay_5_invert": "Relay 5 invert",
+          "relay_6_enabled": "Relay 6 enabled",
+          "relay_6_name": "Relay 6 name",
+          "relay_6_invert": "Relay 6 invert",
+          "relay_7_enabled": "Relay 7 enabled",
+          "relay_7_name": "Relay 7 name",
+          "relay_7_invert": "Relay 7 invert",
+          "relay_8_enabled": "Relay 8 enabled",
+          "relay_8_name": "Relay 8 name",
+          "relay_8_invert": "Relay 8 invert",
+          "relay_9_enabled": "Relay 9 enabled",
+          "relay_9_name": "Relay 9 name",
+          "relay_9_invert": "Relay 9 invert",
+          "relay_10_enabled": "Relay 10 enabled",
+          "relay_10_name": "Relay 10 name",
+          "relay_10_invert": "Relay 10 invert",
+          "relay_11_enabled": "Relay 11 enabled",
+          "relay_11_name": "Relay 11 name",
+          "relay_11_invert": "Relay 11 invert",
+          "relay_12_enabled": "Relay 12 enabled",
+          "relay_12_name": "Relay 12 name",
+          "relay_12_invert": "Relay 12 invert",
+          "relay_13_enabled": "Relay 13 enabled",
+          "relay_13_name": "Relay 13 name",
+          "relay_13_invert": "Relay 13 invert",
+          "relay_14_enabled": "Relay 14 enabled",
+          "relay_14_name": "Relay 14 name",
+          "relay_14_invert": "Relay 14 invert",
+          "relay_15_enabled": "Relay 15 enabled",
+          "relay_15_name": "Relay 15 name",
+          "relay_15_invert": "Relay 15 invert",
+          "relay_16_enabled": "Relay 16 enabled",
+          "relay_16_name": "Relay 16 name",
+          "relay_16_invert": "Relay 16 invert"
+        }
+      }
+    }
+  }
+}
